@@ -1,0 +1,34 @@
+experiment: exp10q_gke_failure
+strategy: qahbn
+numNodes: 20
+fanout: 2
+numClusters: 4
+messageSource: 4
+settleTime: 8.0
+
+topology:
+  type: ba
+  baM: 2
+  edgeProb: 0.2
+  seed: 42
+
+failure:
+  mode: ch_failure
+  targetType: cluster_head
+  triggerTime: 0.05
+  overloadDelayMs: 300
+
+workload:
+  messageCount: 10
+  messageInterval: 0.8
+
+qahbn:
+  alpha: 0.25
+  gamma: 0.90
+  epsilon: 0.20
+  epsilon_min: 0.03
+  epsilon_decay: 0.995
+  w_delivery: 8.0
+  w_dup: 0.30
+  w_forward: 0.10
+  w_failure_bonus: 2.0

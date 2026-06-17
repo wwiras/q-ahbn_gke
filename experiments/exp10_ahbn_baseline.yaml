@@ -1,0 +1,23 @@
+experiment: exp10_gke_failure_ahbn
+strategy: ahbn
+numNodes: 20
+fanout: 2
+numClusters: 4
+messageSource: 4
+settleTime: 8.0
+
+topology:
+  type: ba
+  baM: 2
+  edgeProb: 0.2
+  seed: 42
+
+failure:
+  mode: ch_failure
+  targetType: cluster_head
+  triggerTime: 0.05
+  overloadDelayMs: 300
+
+workload:
+  messageCount: 10
+  messageInterval: 0.8
