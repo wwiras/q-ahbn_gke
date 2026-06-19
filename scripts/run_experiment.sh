@@ -124,6 +124,10 @@ case "${EXP_NAME}" in
     PLOT_SCRIPT="${ROOT_DIR}/app/plot_exp10.py"
     ;;
 
+  exp10_ahbn_baseline)
+    PLOT_SCRIPT="${ROOT_DIR}/app/plot_exp10_qahbn.py"
+    ;;
+
   exp10_qahbn)
     PLOT_SCRIPT="${ROOT_DIR}/app/plot_exp10_qahbn.py"
     ;;

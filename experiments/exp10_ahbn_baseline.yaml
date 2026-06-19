@@ -19,6 +19,9 @@ failure:
   triggerTime: 3.0
   overloadDelayMs: 300
 
+# workload:
+#   messageCount: 10
+#   messageInterval: 0.8
 workload:
-  messageCount: 10
+  messageCount: 50
   messageInterval: 0.8
