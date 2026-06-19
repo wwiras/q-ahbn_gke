@@ -5,6 +5,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import DefaultDict
 
+
 StateKey = tuple[str, str, str, str]
 
 @dataclass(frozen=True)

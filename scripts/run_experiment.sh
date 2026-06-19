@@ -108,13 +108,41 @@ kubectl -n "${NAMESPACE}" wait \
 echo "[10] Collect logs"
 collect_debug
 
+# echo "[11] Plot results"
+# PLOT_SCRIPT="${ROOT_DIR}/app/plot_exp10.py"
+# if [ "${EXP_NAME}" = "exp11" ]; then
+#   PLOT_SCRIPT="${ROOT_DIR}/app/plot_exp11.py"
+# elif [ "${EXP_NAME}" = "exp12" ]; then
+#   PLOT_SCRIPT="${ROOT_DIR}/app/plot_exp12.py"
+# fi
+
 echo "[11] Plot results"
-PLOT_SCRIPT="${ROOT_DIR}/app/plot_exp10.py"
-if [ "${EXP_NAME}" = "exp11" ]; then
-  PLOT_SCRIPT="${ROOT_DIR}/app/plot_exp11.py"
-elif [ "${EXP_NAME}" = "exp12" ]; then
-  PLOT_SCRIPT="${ROOT_DIR}/app/plot_exp12.py"
-fi
+
+case "${EXP_NAME}" in
+
+  exp10)
+    PLOT_SCRIPT="${ROOT_DIR}/app/plot_exp10.py"
+    ;;
+
+  exp10_qahbn)
+    PLOT_SCRIPT="${ROOT_DIR}/app/plot_exp10_qahbn.py"
+    ;;
+
+  exp11)
+    PLOT_SCRIPT="${ROOT_DIR}/app/plot_exp11.py"
+    ;;
+
+  exp12)
+    PLOT_SCRIPT="${ROOT_DIR}/app/plot_exp12.py"
+    ;;
+
+  *)
+    echo "Unknown experiment: ${EXP_NAME}"
+    exit 1
+    ;;
+esac
+
+
 python "${PLOT_SCRIPT}" \
   --log "${OUTDIR}/logs.jsonl" \
   --expected-nodes "${NUM_NODES}" \
