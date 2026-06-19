@@ -41,7 +41,18 @@ def summarize(df: pd.DataFrame, expected_nodes: int) -> pd.DataFrame:
 
         strategy = g["strategy"].dropna().iloc[0] if "strategy" in g.columns and not g["strategy"].dropna().empty else "unknown"
         delivered = recv[["message_id", "peer_id"]].drop_duplicates().shape[0] if not recv.empty else 0
-        expected = expected_nodes * max(1, recv["message_id"].nunique() if not recv.empty else 1)
+        
+        # expected = expected_nodes * max(1, recv["message_id"].nunique() if not recv.empty else 1)
+        injected = g[g["event"] == "message_injected"]
+
+        message_count = (
+            injected["message_id"].nunique()
+            if not injected.empty
+            else 1
+        )
+
+        expected = expected_nodes * message_count
+        
         dr = delivered / expected if expected > 0 else 0.0
         duplicates = len(dup)
         forwards = len(fwd)
@@ -49,8 +60,22 @@ def summarize(df: pd.DataFrame, expected_nodes: int) -> pd.DataFrame:
         inject_ts = g.loc[g["event"] == "message_injected", "ts"].min()
         max_recv_ts = recv["ts"].max() if not recv.empty else float("nan")
         delay = max_recv_ts - inject_ts if pd.notna(inject_ts) and pd.notna(max_recv_ts) else float("nan")
+        
+        # fail_ts = fail["ts"].min() if not fail.empty else float("nan")
+        # recovery = max_recv_ts - fail_ts if pd.notna(fail_ts) and pd.notna(max_recv_ts) else float("nan")
         fail_ts = fail["ts"].min() if not fail.empty else float("nan")
-        recovery = max_recv_ts - fail_ts if pd.notna(fail_ts) and pd.notna(max_recv_ts) else float("nan")
+
+        if pd.notna(fail_ts) and not recv.empty:
+
+            post_failure_recv = recv[recv["ts"] > fail_ts]
+
+            if not post_failure_recv.empty:
+                recovery = post_failure_recv["ts"].min() - fail_ts
+            else:
+                recovery = float("nan")
+
+        else:
+            recovery = float("nan")
 
         latency_norm = min(2.0, delay / 10.0) if pd.notna(delay) else 2.0
         forwards_norm = min(2.0, forwards / max(1, expected * 2))
@@ -68,11 +93,50 @@ def summarize(df: pd.DataFrame, expected_nodes: int) -> pd.DataFrame:
             "adaptation_efficiency": ae,
             "q_decisions": len(qd),
             "q_updates": int(qd["q_updates"].max()) if not qd.empty and "q_updates" in qd else 0,
-            "q_pct_recovery_push": (qd["q_action"].eq("recovery_push").mean() if not qd.empty and "q_action" in qd else 0.0),
+            
+            # "q_pct_recovery_push": (qd["q_action"].eq("recovery_push").mean() if not qd.empty and "q_action" in qd else 0.0),
+            "q_pct_recovery_push": (
+                qd["q_action"].eq("recovery_push").mean()
+                if not qd.empty and "q_action" in qd
+                else 0.0
+            ),
+            "q_pct_more_gossip": (
+                qd["q_action"].eq("more_gossip").mean()
+                if not qd.empty and "q_action" in qd
+                else 0.0
+            ),
+            "q_pct_more_structured": (
+                qd["q_action"].eq("more_structured").mean()
+                if not qd.empty and "q_action" in qd
+                else 0.0
+            ),
+            "q_pct_duplicate_suppression": (
+                qd["q_action"].eq("duplicate_suppression").mean()
+                if not qd.empty and "q_action" in qd
+                else 0.0
+            ),
+            "q_pct_resource_conservative": (
+                qd["q_action"].eq("resource_conservative").mean()
+                if not qd.empty and "q_action" in qd
+                else 0.0
+            ),
+            
             "expected_deliveries": expected,
             "actual_deliveries": delivered,
         })
-    return pd.DataFrame(rows)
+        
+    summary = pd.DataFrame(rows)
+
+    summary = summary[
+        summary["strategy"].notna()
+    ]
+
+    summary = summary[
+        summary["strategy"] != "unknown"
+    ]
+
+    return summary
+    # return pd.DataFrame(rows)
 
 
 def plot_failure_timeline(df: pd.DataFrame, out_png: Path) -> None:

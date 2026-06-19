@@ -18,8 +18,11 @@ failure:
   triggerTime: 0.05
   overloadDelayMs: 300
 
+# workload:
+#   messageCount: 10
+#   messageInterval: 0.8
 workload:
-  messageCount: 10
+  messageCount: 50
   messageInterval: 0.8
 
 qahbn:
