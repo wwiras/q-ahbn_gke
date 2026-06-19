@@ -451,6 +451,65 @@ def run_bottleneck(
             ],
         )
 
+def run_failure(
+    topo: dict,
+    peer_svc: str,
+    namespace: str,
+    grpc_port: int,
+) -> None:
+    failure = topo["failure"]
+
+    run_id = topo["run_id"]
+    mode = failure["mode"]
+    trigger_time = float(failure.get("trigger_time", 1.0))
+    overload_ms = int(failure.get("overload_delay_ms", 200))
+
+    time.sleep(trigger_time)
+
+    target = choose_target(topo, mode)
+
+    if target is None:
+        log_event(
+            event="failure_skipped",
+            run_id=run_id,
+            failure_mode=mode,
+        )
+        return
+
+    is_ch = topo["nodes"][str(target)]["is_cluster_head"]
+
+    log_event(
+        event="failure_triggered",
+        run_id=run_id,
+        failure_mode=mode,
+        target_peer=target,
+        is_cluster_head=is_ch,
+        trigger_time=trigger_time,
+    )
+
+    if mode in ("node_failure", "ch_failure"):
+        fail_stop_peer(target, peer_svc, namespace, grpc_port)
+
+    elif mode == "overload":
+        apply_overload(
+            target,
+            peer_svc,
+            namespace,
+            grpc_port,
+            overload_ms,
+        )
+
+    else:
+        raise ValueError(mode)
+
+    log_event(
+        event="failure_applied",
+        run_id=run_id,
+        failure_mode=mode,
+        target_peer=target,
+        is_cluster_head=is_ch,
+    )
+
 
 def main() -> None:
     topo_path = os.environ.get("TOPOLOGY_PATH", "/config/topology.json")
@@ -486,6 +545,36 @@ def main() -> None:
 
     stress_thread = None
 
+    # if mode == "churn":
+    #     stress_thread = threading.Thread(
+    #         target=run_churn,
+    #         args=(topo, peer_svc, namespace, grpc_port),
+    #         daemon=True,
+    #     )
+    #     stress_thread.start()
+
+    # elif mode == "mixed_resources":
+    #     stress_thread = threading.Thread(
+    #         target=run_mixed_resources,
+    #         args=(topo, peer_svc, namespace, grpc_port),
+    #         daemon=True,
+    #     )
+    #     stress_thread.start()
+        
+    # elif mode == "bottleneck":
+    #     stress_thread = threading.Thread(
+    #         target=run_bottleneck,
+    #         args=(
+    #             topo,
+    #             peer_svc,
+    #             namespace,
+    #             grpc_port,
+    #         ),
+    #         daemon=True,
+    #     )
+
+    #     stress_thread.start()
+    
     if mode == "churn":
         stress_thread = threading.Thread(
             target=run_churn,
@@ -501,19 +590,21 @@ def main() -> None:
             daemon=True,
         )
         stress_thread.start()
-        
+
     elif mode == "bottleneck":
         stress_thread = threading.Thread(
             target=run_bottleneck,
-            args=(
-                topo,
-                peer_svc,
-                namespace,
-                grpc_port,
-            ),
+            args=(topo, peer_svc, namespace, grpc_port),
             daemon=True,
         )
+        stress_thread.start()
 
+    elif mode in ("node_failure", "ch_failure", "overload"):
+        stress_thread = threading.Thread(
+            target=run_failure,
+            args=(topo, peer_svc, namespace, grpc_port),
+            daemon=True,
+        )
         stress_thread.start()
     
     inject_messages(
@@ -534,36 +625,36 @@ def main() -> None:
         if stress_thread is not None:
             stress_thread.join()
 
-    elif mode != "none":
-        time.sleep(float(failure["trigger_time"]))
+    # elif mode != "none":
+    #     time.sleep(float(failure["trigger_time"]))
 
-        target = choose_target(topo, mode)
+    #     target = choose_target(topo, mode)
 
-        if target is None:
-            log_event(
-                event="failure_skipped",
-                run_id=run_id,
-                failure_mode=mode,
-            )
-        else:
-            is_ch = topo["nodes"][str(target)]["is_cluster_head"]
+    #     if target is None:
+    #         log_event(
+    #             event="failure_skipped",
+    #             run_id=run_id,
+    #             failure_mode=mode,
+    #         )
+    #     else:
+    #         is_ch = topo["nodes"][str(target)]["is_cluster_head"]
 
-            log_event(
-                event="failure_triggered",
-                run_id=run_id,
-                failure_mode=mode,
-                target_peer=target,
-                is_cluster_head=is_ch,
-            )
+    #         log_event(
+    #             event="failure_triggered",
+    #             run_id=run_id,
+    #             failure_mode=mode,
+    #             target_peer=target,
+    #             is_cluster_head=is_ch,
+    #         )
 
-            if mode in ("node_failure", "ch_failure"):
-                fail_stop_peer(target, peer_svc, namespace, grpc_port)
+    #         if mode in ("node_failure", "ch_failure"):
+    #             fail_stop_peer(target, peer_svc, namespace, grpc_port)
 
-            elif mode == "overload":
-                apply_overload(target, peer_svc, namespace, grpc_port, overload_ms)
+    #         elif mode == "overload":
+    #             apply_overload(target, peer_svc, namespace, grpc_port, overload_ms)
 
-            else:
-                raise ValueError(mode)
+    #         else:
+    #             raise ValueError(mode)
 
     else:
         log_event(

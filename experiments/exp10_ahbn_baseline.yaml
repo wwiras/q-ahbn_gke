@@ -15,7 +15,8 @@ topology:
 failure:
   mode: ch_failure
   targetType: cluster_head
-  triggerTime: 0.05
+  # triggerTime: 0.05
+  triggerTime: 3.0
   overloadDelayMs: 300
 
 workload:

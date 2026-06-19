@@ -14,7 +14,7 @@
   "settle_time": 8.0,
   "failure": {
     "mode": "ch_failure",
-    "trigger_time": 0.05,
+    "trigger_time": 3.0,
     "overload_delay_ms": 300,
     "num_events": 3,
     "interval_sec": 1.0,
