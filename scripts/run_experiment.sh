@@ -156,8 +156,11 @@ case "${EXP_NAME}" in
     PLOT_SCRIPT="${ROOT_DIR}/app/plot_exp11.py"
     ;;
 
-  exp12*)
-    PLOT_SCRIPT="${ROOT_DIR}/app/plot_exp12_qahbn.py"
+   exp12*)
+    echo "Exp12 plotting handled by comparison script."
+    echo "DONE -> ${OUTDIR}"
+    trap - EXIT
+    exit 0
     ;;
 
   *)

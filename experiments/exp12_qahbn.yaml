@@ -1,0 +1,43 @@
+experiment: exp12_qahbn_gke_heterogeneity
+strategy: qahbn
+numNodes: 20
+fanout: 2
+numClusters: 4
+messageSource: 4
+settleTime: 12.0
+
+topology:
+  type: ba
+  baM: 2
+  edgeProb: 0.2
+  seed: 42
+
+workload:
+  messageCount: 30
+  messageInterval: 0.5
+
+failure:
+  mode: mixed_resources
+  triggerTime: 0.6
+  overloadDelayMs: 350
+  numEvents: 6
+  intervalSec: 1.0
+  targetType: low_resource
+
+resources:
+  enabled: true
+  lowResourceFraction: 0.30
+  mediumOverloadMs: 120
+  lowOverloadMs: 350
+  avoidSource: true
+
+qahbn:
+  alpha: 0.25
+  gamma: 0.90
+  epsilon: 0.20
+  epsilon_min: 0.03
+  epsilon_decay: 0.995
+  w_delivery: 10.0
+  w_dup: 0.25
+  w_forward: 0.15
+  w_failure_bonus: 1.5
