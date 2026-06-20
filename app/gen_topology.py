@@ -449,6 +449,8 @@ def main():
         # Node metadata
         # -----------------------------------------------
 
+        "qahbn": cfg.get("qahbn", {}),
+
         "nodes": nodes,
     }
 

@@ -6,13 +6,13 @@ Docker image build
 ```bash
 $ docker build --no-cache \
   --platform linux/amd64 \
-  -t wwiras/qahbn-peer:v1 \
+  -t wwiras/qahbn-peer:v6 \
   -f app/Dockerfile app
 ```
 
 Image Push
 ```bash
-$ docker push wwiras/qahbn-peer:v1
+$ docker push wwiras/qahbn-peer:v6
 ```
 
 Create GKE k8s cluster
@@ -24,13 +24,13 @@ $ gcloud container clusters create bcgossip-cluster \
 
 Running the experiment
 ```bash
-$ IMAGE=wwiras/qahbn-peer:v1 ./scripts/run_exp10_qahbn.sh
+$ IMAGE=wwiras/qahbn-peer:v6 ./scripts/run_exp11_compare.sh
 ```
 
 After experiment Clean deployment
 ```bash
-$ helm uninstall ahbn -n ahbn-exp10 || true
-$ kubectl delete namespace ahbn-exp10 --ignore-not-found=true
+$ helm uninstall ahbn -n ahbn-exp11 || true
+$ kubectl delete namespace ahbn-exp11 --ignore-not-found=true
 ```
 
 List of all GKE clusters

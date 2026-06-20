@@ -1,7 +1,7 @@
 {
-  "run_id": "exp10q_gke_failure",
-  "experiment": "exp10q_gke_failure",
-  "mode": "ch_failure",
+  "run_id": "exp11_qahbn_gke_churn",
+  "experiment": "exp11_qahbn_gke_churn",
+  "mode": "churn",
   "seed": 42,
   "strategy": "qahbn",
   "num_nodes": 20,
@@ -11,14 +11,14 @@
   "message_source": 4,
   "fanout": 2,
   "num_clusters": 4,
-  "settle_time": 8.0,
+  "settle_time": 12.0,
   "failure": {
-    "mode": "ch_failure",
-    "trigger_time": 3.0,
-    "overload_delay_ms": 300,
-    "num_events": 3,
-    "interval_sec": 1.0,
-    "target_type": "cluster_head"
+    "mode": "churn",
+    "trigger_time": 1.0,
+    "overload_delay_ms": 0,
+    "num_events": 4,
+    "interval_sec": 1.2,
+    "target_type": "mixed"
   },
   "bottleneck": {
     "enabled": false,
@@ -26,13 +26,24 @@
     "delay_ms": 250
   },
   "workload": {
-    "message_count": 50,
+    "message_count": 20,
     "message_interval": 0.8
   },
   "ahbn": {
     "mode_threshold": 0.5,
     "min_fanout": 1,
     "max_fanout": 6
+  },
+  "qahbn": {
+    "alpha": 0.25,
+    "gamma": 0.9,
+    "epsilon": 0.2,
+    "epsilon_min": 0.03,
+    "epsilon_decay": 0.995,
+    "w_delivery": 10.0,
+    "w_dup": 0.25,
+    "w_forward": 0.1,
+    "w_failure_bonus": 2.5
   },
   "nodes": {
     "0": {

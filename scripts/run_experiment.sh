@@ -118,26 +118,46 @@ collect_debug
 
 echo "[11] Plot results"
 
+# case "${EXP_NAME}" in
+
+#   exp10)
+#     PLOT_SCRIPT="${ROOT_DIR}/app/plot_exp10.py"
+#     ;;
+
+#   exp10_ahbn_baseline)
+#     PLOT_SCRIPT="${ROOT_DIR}/app/plot_exp10_qahbn.py"
+#     ;;
+
+#   exp10_qahbn)
+#     PLOT_SCRIPT="${ROOT_DIR}/app/plot_exp10_qahbn.py"
+#     ;;
+
+#   exp11)
+#     PLOT_SCRIPT="${ROOT_DIR}/app/plot_exp11.py"
+#     ;;
+
+#   exp12)
+#     PLOT_SCRIPT="${ROOT_DIR}/app/plot_exp12.py"
+#     ;;
+
+#   *)
+#     echo "Unknown experiment: ${EXP_NAME}"
+#     exit 1
+#     ;;
+# esac
+
 case "${EXP_NAME}" in
 
-  exp10)
-    PLOT_SCRIPT="${ROOT_DIR}/app/plot_exp10.py"
-    ;;
-
-  exp10_ahbn_baseline)
+  exp10*)
     PLOT_SCRIPT="${ROOT_DIR}/app/plot_exp10_qahbn.py"
     ;;
 
-  exp10_qahbn)
-    PLOT_SCRIPT="${ROOT_DIR}/app/plot_exp10_qahbn.py"
-    ;;
-
-  exp11)
+  exp11*)
     PLOT_SCRIPT="${ROOT_DIR}/app/plot_exp11.py"
     ;;
 
-  exp12)
-    PLOT_SCRIPT="${ROOT_DIR}/app/plot_exp12.py"
+  exp12*)
+    PLOT_SCRIPT="${ROOT_DIR}/app/plot_exp12_qahbn.py"
     ;;
 
   *)
